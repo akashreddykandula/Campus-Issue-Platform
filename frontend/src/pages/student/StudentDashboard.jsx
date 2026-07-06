@@ -60,7 +60,7 @@ export default function StudentDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-transparent p-4 sm:p-0 rounded-2xl">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              Welcome, {user?.full_name?.split(" ")[0] || "Student"} 👋
+              Welcome, {user?.full_name?.split(" ")[0] || "Student"} 
             </h1>
             <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
               {user?.course} • {user?.branch} • <span className="text-primary-600 dark:text-primary-400 font-semibold">Year {user?.year}</span>
