@@ -64,7 +64,7 @@ def create_app(config_name: str | None = None) -> Flask:
                 db.session.add(admin)
                 db.session.commit()
 
-                print("✅ Default admin created")
+                #print("✅ Default admin created")
 
             else:
                 print("✅ Default admin already exists")
@@ -81,8 +81,8 @@ def create_app(config_name: str | None = None) -> Flask:
         from flask import jsonify
 
         print("\n" + "=" * 80)
-        print("UNAUTHORIZED REQUEST")
-        print("SESSION:", dict(session))
+       # print("UNAUTHORIZED REQUEST")
+       # print("SESSION:", dict(session))
         print("=" * 80 + "\n")
 
         return jsonify({"error": "Authentication required"}), 401
@@ -95,24 +95,24 @@ def create_app(config_name: str | None = None) -> Flask:
     def load_user(user_id: str):
         from app.models import Student, Admin
 
-        print("\n" + "=" * 80)
-        print("USER LOADER CALLED")
-        print("USER ID:", user_id)
+        # print("\n" + "=" * 80)
+       # print("USER LOADER CALLED")
+       # print("USER ID:", user_id)
 
         if user_id.startswith("student:"):
             student = Student.query.get(int(user_id.split(":")[1]))
-            print("FOUND STUDENT:", student)
-            print("=" * 80 + "\n")
+           # print("FOUND STUDENT:", student)
+            #print("=" * 80 + "\n")
             return student
 
         if user_id.startswith("admin:"):
             admin = Admin.query.get(int(user_id.split(":")[1]))
-            print("FOUND ADMIN:", admin)
-            print("=" * 80 + "\n")
+           # print("FOUND ADMIN:", admin)
+           # print("=" * 80 + "\n")
             return admin
 
-        print("INVALID USER ID")
-        print("=" * 80 + "\n")
+        #print("INVALID USER ID")
+        #print("=" * 80 + "\n")
 
         return None
 
@@ -120,15 +120,15 @@ def create_app(config_name: str | None = None) -> Flask:
     # Debug Every Request
     # ------------------------------------------------------------------
 
-    @app.before_request
-    def debug_request():
-        print("\n" + "=" * 80)
-        print("NEW REQUEST")
-        print("PATH:", session)
-        print("SESSION DATA:", dict(session))
-        print("CURRENT USER:", current_user)
-        print("IS AUTHENTICATED:", current_user.is_authenticated)
-        print("=" * 80 + "\n")
+    # @app.before_request
+    # def debug_request():
+    #     print("\n" + "=" * 80)
+    #     print("NEW REQUEST")
+    #     print("PATH:", session)
+    #     print("SESSION DATA:", dict(session))
+    #     print("CURRENT USER:", current_user)
+    #     print("IS AUTHENTICATED:", current_user.is_authenticated)
+    #     print("=" * 80 + "\n")
 
     # ------------------------------------------------------------------
     # Upload Folder
