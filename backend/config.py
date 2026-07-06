@@ -99,23 +99,19 @@ class DevelopmentConfig(BaseConfig):
 
 
 class ProductionConfig(BaseConfig):
-    """Production configuration."""
-
     DEBUG = False
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL",
-        ""
-    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "")
 
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "None"
+
     WTF_CSRF_SSL_STRICT = True
 
     def __init__(self):
         if not self.SQLALCHEMY_DATABASE_URI:
-            raise ValueError(
-                "DATABASE_URL environment variable is required."
-            )
+            raise ValueError("DATABASE_URL environment variable is required.")
 
 
 class TestingConfig(BaseConfig):
