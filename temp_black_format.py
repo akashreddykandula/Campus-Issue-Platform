@@ -1,20 +1,171 @@
 """
-run.py
-------
-Application entry point.
-  - Development : python run.py
-  - Production  : gunicorn run:app --config gunicorn.conf.py
+app/__init__.py
+---------------
+Flask application factory.
 """
 
 import os
-from app import create_app
 
-app = create_app(os.environ.get("FLASK_ENV", "development"))
-print("FLASK_ENV =", os.environ.get("FLASK_ENV"))
+from flask import Flask, session
+from flask_login import current_user
 
-print("SESSION_COOKIE_SAMESITE =", app.config["SESSION_COOKIE_SAMESITE"])
+from config import CONFIG_MAP
+from app.extensions import db, login_manager, migrate, csrf, cors
 
-print("SESSION_COOKIE_SECURE =", app.config["SESSION_COOKIE_SECURE"])
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
+def create_app(config_name: str | None = None) -> Flask:
+    if config_name is None:
+        config_name = os.environ.get("FLASK_ENV", "development")
+
+    app = Flask(__name__, instance_relative_config=False)
+    app.config.from_object(CONFIG_MAP[config_name])
+
+    # ------------------------------------------------------------------
+    # Extensions
+    # ------------------------------------------------------------------
+
+    db.init_app(app)
+    login_manager.init_app(app)
+    migrate.init_app(app, db)
+    csrf.init_app(app)
+
+    cors.init_app(
+        app,
+        resources={
+            r"/api/*": {
+                "origins": app.config["CORS_ORIGINS"]
+            }
+        },
+        supports_credentials=True,
+    )
+
+    # ------------------------------------------------------------------
+    # Create Default Admin
+    # ------------------------------------------------------------------
+
+    with app.app_context():
+        from app.models import Admin
+
+        email = os.getenv("ADMIN_EMAIL")
+        password = os.getenv("ADMIN_PASSWORD")
+
+        if email and password:
+            admin = Admin.query.filter_by(email=email.lower()).first()
+
+            if admin is None:
+                admin = Admin(
+                    full_name="System Administrator",
+                    email=email.lower(),
+                    department="Administration",
+                )
+
+                admin.set_password(password)
+
+                db.session.add(admin)
+                db.session.commit()
+
+                print("✅ Default admin created")
+
+            else:
+                print("✅ Default admin already exists")
+
+    # ------------------------------------------------------------------
+    # Login Manager
+    # ------------------------------------------------------------------
+
+    login_manager.login_view = "auth.login"
+    login_manager.login_message_category = "info"
+
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        from flask import jsonify
+
+        print("\n" + "=" * 80)
+        print("UNAUTHORIZED REQUEST")
+        print("SESSION:", dict(session))
+        print("=" * 80 + "\n")
+
+        return jsonify({"error": "Authentication required"}), 401
+
+    # ------------------------------------------------------------------
+    # User Loader
+    # ------------------------------------------------------------------
+
+    @login_manager.user_loader
+    def load_user(user_id: str):
+        from app.models import Student, Admin
+
+        print("\n" + "=" * 80)
+        print("USER LOADER CALLED")
+        print("USER ID:", user_id)
+
+        if user_id.startswith("student:"):
+            student = Student.query.get(int(user_id.split(":")[1]))
+            print("FOUND STUDENT:", student)
+            print("=" * 80 + "\n")
+            return student
+
+        if user_id.startswith("admin:"):
+            admin = Admin.query.get(int(user_id.split(":")[1]))
+            print("FOUND ADMIN:", admin)
+            print("=" * 80 + "\n")
+            return admin
+
+        print("INVALID USER ID")
+        print("=" * 80 + "\n")
+
+        return None
+
+    # ------------------------------------------------------------------
+    # Debug Every Request
+    # ------------------------------------------------------------------
+
+    @app.before_request
+    def debug_request():
+        print("\n" + "=" * 80)
+        print("NEW REQUEST")
+        print("PATH:", session)
+        print("SESSION DATA:", dict(session))
+        print("CURRENT USER:", current_user)
+        print("IS AUTHENTICATED:", current_user.is_authenticated)
+        print("=" * 80 + "\n")
+
+    # ------------------------------------------------------------------
+    # Upload Folder
+    # ------------------------------------------------------------------
+
+    upload_folder = app.config.get("UPLOAD_FOLDER", "uploads")
+    os.makedirs(upload_folder, exist_ok=True)
+
+    # ------------------------------------------------------------------
+    # Blueprints
+    # ------------------------------------------------------------------
+
+    from app.api.v1 import api_v1
+
+    app.register_blueprint(
+        api_v1,
+        url_prefix="/api/v1",
+    )
+
+    # ------------------------------------------------------------------
+    # Error Handlers
+    # ------------------------------------------------------------------
+
+    from app.middleware.error_handlers import register_error_handlers
+
+    register_error_handlers(app)
+
+    # ------------------------------------------------------------------
+    # Security Headers
+    # ------------------------------------------------------------------
+
+    @app.after_request
+    def set_security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
+
+    return app

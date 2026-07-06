@@ -40,6 +40,36 @@ def create_app(config_name: str | None = None) -> Flask:
     )
 
     # ------------------------------------------------------------------
+    # Create Default Admin
+    # ------------------------------------------------------------------
+
+    with app.app_context():
+        from app.models import Admin
+
+        email = os.getenv("ADMIN_EMAIL")
+        password = os.getenv("ADMIN_PASSWORD")
+
+        if email and password:
+            admin = Admin.query.filter_by(email=email.lower()).first()
+
+            if admin is None:
+                admin = Admin(
+                    full_name="System Administrator",
+                    email=email.lower(),
+                    department="Administration",
+                )
+
+                admin.set_password(password)
+
+                db.session.add(admin)
+                db.session.commit()
+
+                print("✅ Default admin created")
+
+            else:
+                print("✅ Default admin already exists")
+
+    # ------------------------------------------------------------------
     # Login Manager
     # ------------------------------------------------------------------
 
@@ -63,12 +93,11 @@ def create_app(config_name: str | None = None) -> Flask:
 
     @login_manager.user_loader
     def load_user(user_id: str):
+        from app.models import Student, Admin
 
         print("\n" + "=" * 80)
         print("USER LOADER CALLED")
         print("USER ID:", user_id)
-
-        from app.models import Student, Admin
 
         if user_id.startswith("student:"):
             student = Student.query.get(int(user_id.split(":")[1]))
@@ -93,7 +122,6 @@ def create_app(config_name: str | None = None) -> Flask:
 
     @app.before_request
     def debug_request():
-
         print("\n" + "=" * 80)
         print("NEW REQUEST")
         print("PATH:", session)
