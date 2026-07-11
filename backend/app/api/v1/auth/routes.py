@@ -31,21 +31,21 @@ def register():
     student, error = AuthService.register_student(data)
 
     if error:
-        print("\n" + "=" * 80)
-        print("REGISTRATION FAILED")
-        print(error)
-        print("=" * 80 + "\n")
+        # print("\n" + "=" * 80)
+        # print("REGISTRATION FAILED")
+        # print(error)
+        # print("=" * 80 + "\n")
 
         return jsonify({"error": error}), 400
 
     login_user(student)
 
-    print("\n" + "=" * 80)
-    print("REGISTRATION SUCCESS")
-    print("USER:", student)
-    print("USER ID:", student.get_id())
-    print("SESSION:", dict(session))
-    print("=" * 80 + "\n")
+    # print("\n" + "=" * 80)
+    # print("REGISTRATION SUCCESS")
+    # print("USER:", student)
+    # print("USER ID:", student.get_id())
+    # print("SESSION:", dict(session))
+    # print("=" * 80 + "\n")
 
     return jsonify(
         {
@@ -68,10 +68,10 @@ def login():
     roll_number = data.get("roll_number", "").strip()
     password = data.get("password", "")
 
-    print("\n" + "=" * 80)
-    print("LOGIN REQUEST")
-    print("ROLL NUMBER:", roll_number)
-    print("=" * 80)
+        # print("\n" + "=" * 80)
+        # print("LOGIN REQUEST")
+        # print("ROLL NUMBER:", roll_number)
+        # print("=" * 80)
 
     student, error = AuthService.login_student(
         roll_number,
@@ -80,18 +80,18 @@ def login():
 
     if error:
 
-        print("LOGIN FAILED:", error)
-        print("=" * 80 + "\n")
+        # print("LOGIN FAILED:", error)
+        # print("=" * 80 + "\n")
 
         return jsonify({"error": error}), 401
 
     login_user(student)
 
-    print("LOGIN SUCCESS")
-    print("USER OBJECT:", student)
-    print("USER ID:", student.get_id())
-    print("SESSION AFTER LOGIN:", dict(session))
-    print("=" * 80 + "\n")
+    # print("LOGIN SUCCESS")
+    # print("USER OBJECT:", student)
+    # print("USER ID:", student.get_id())
+    # print("SESSION AFTER LOGIN:", dict(session))
+    # print("=" * 80 + "\n")
 
     return jsonify(
         {
@@ -120,21 +120,21 @@ def admin_login():
     )
 
     if error:
-        print("\n" + "=" * 80)
-        print("ADMIN LOGIN FAILED")
-        print(error)
-        print("=" * 80 + "\n")
+        # print("\n" + "=" * 80)
+        # print("ADMIN LOGIN FAILED")
+        # print(error)
+        # print("=" * 80 + "\n")
 
         return jsonify({"error": error}), 401
 
     login_user(admin)
 
-    print("\n" + "=" * 80)
-    print("ADMIN LOGIN SUCCESS")
-    print("USER:", admin)
-    print("USER ID:", admin.get_id())
-    print("SESSION:", dict(session))
-    print("=" * 80 + "\n")
+    # print("\n" + "=" * 80)
+    # print("ADMIN LOGIN SUCCESS")
+    # print("USER:", admin)
+    # print("USER ID:", admin.get_id())
+    # print("SESSION:", dict(session))
+    # print("=" * 80 + "\n")
 
     return jsonify(
         {
@@ -153,16 +153,16 @@ def admin_login():
 @login_required
 def logout():
 
-    print("\n" + "=" * 80)
-    print("LOGOUT")
-    print("CURRENT USER:", current_user)
-    print("SESSION BEFORE:", dict(session))
+    # print("\n" + "=" * 80)
+    # print("LOGOUT")
+    # print("CURRENT USER:", current_user)
+    # print("SESSION BEFORE:", dict(session))
 
     logout_user()
     session.clear()
 
-    print("SESSION AFTER:", dict(session))
-    print("=" * 80 + "\n")
+    # print("SESSION AFTER:", dict(session))
+    # print("=" * 80 + "\n")
 
     response = jsonify(
         {

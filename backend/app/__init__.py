@@ -81,8 +81,8 @@ def create_app(config_name: str | None = None) -> Flask:
         from flask import jsonify
 
         print("\n" + "=" * 80)
-       # print("UNAUTHORIZED REQUEST")
-       # print("SESSION:", dict(session))
+        print("UNAUTHORIZED REQUEST")
+        print("SESSION:", dict(session))
         print("=" * 80 + "\n")
 
         return jsonify({"error": "Authentication required"}), 401
