@@ -403,7 +403,7 @@ export default function LandingPage () {
       <footer className="bg-slate-950 text-slate-500 border-t border-slate-900/60 py-8 sm:py-12 text-center text-[11px] sm:text-xs px-4 sm:px-6 relative z-10 transition-colors duration-300">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
           <p>
-            © 2026 Campus Issue Management Platform. ARK.
+            © 2026 Campus Issue Management Platform. Any queries? Mail to akashreddykandula@gmail.com
           </p>
           <div className="flex justify-center gap-4 sm:gap-6 font-medium">
             <Link
